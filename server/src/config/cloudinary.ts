@@ -1,8 +1,8 @@
 // cloudinary.ts
 // Product photo lives on cloudinary, a service that stores pictures and serves them quickly from anywhere in the world This file logs in to cloudinary once and has small helpers for photo addressess
 
-import { env } from "./env";
 import { v2 as cloudinary } from "cloudinary";
+import { env } from "./env";
 
 // Every Product photo is kept in the "quickcart/products" folder:
 
