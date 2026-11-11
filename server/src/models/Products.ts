@@ -41,7 +41,7 @@ export interface IProduct {
   lowStock: number;
   lowStockThreshold: number;
   images: string[]; // images[0] is the photo on product cards
-  gallery: string; // large photos for the product details page (empty= use images)
+  gallery: string[]; // large photos for the product details page (empty= use images)
   colors: IProductColor[];
   tags: string;
   badge?: string; // e.g "SALE", "TOP SELLER", "NEW"
