@@ -5,12 +5,12 @@
 import mongoose, { Types } from "mongoose";
 import { Category } from "../models/Category";
 import { Product } from "../models/Products";
-import { demoCategories, demoProducts } from "./demoData";
+import { demoCategories, demoProducts, demoUsers } from "./demoData";
 import { listProductPhotoId } from "../config/cloudinary";
 import { products } from "./products";
 import { categories } from "./categories";
 import { connectDB } from "../config/database";
-import { log } from "console";
+import { User } from "../models/User";
 
 // STEP 13: The seed command
 // seedDatabase( does the work and is exported, so the demo panel can reuse it.
@@ -18,7 +18,11 @@ import { log } from "console";
 
 export const seedDatabase = async () => {
   // 1. Empty the collections (both at the same time with promise.all)
-  await Promise.all([Category.deleteMany({}), Product.deleteMany({})]);
+  await Promise.all([
+    Category.deleteMany({}),
+    Product.deleteMany({}),
+    User.deleteMany({}),
+  ]);
 
   // 2. Save the categories, the remember each ones id by slug: "electronics" -> ObjectId(....)
   const savedCategories = await Category.insertMany(demoCategories());
@@ -76,8 +80,13 @@ export const seedDatabase = async () => {
     }),
   );
 
-  //   6. A summary for whoever ran the seed
+  // 6. Save the demo users. User.create (NOT insertMany): only create/save runs the model's
+  // pre("save") hook, which hashes the passwords. insertMany would store them as plain text!
+  const savedUsers = await User.create(demoUsers());
+
+  //   7. A summary for whoever ran the seed
   return {
+    users: savedUsers.length,
     categories: savedCategories.length,
     products: saveProducts.length,
     withoutPhotos: saveProducts
@@ -97,7 +106,7 @@ const runSeed = async () => {
     const result = await seedDatabase();
 
     console.log(
-      `Seeded ${result.categories} categories and ${result.products} products`,
+      `Seeded ${result.categories} categories and ${result.products} products and ${result.users} users`,
     );
     if (result.withoutPhotos.length > 0) {
       console.log(
