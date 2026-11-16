@@ -43,7 +43,7 @@ export interface IProduct {
   images: string[]; // images[0] is the photo on product cards
   gallery: string[]; // large photos for the product details page (empty= use images)
   colors: IProductColor[];
-  tags: string;
+  tags: string[];
   badge?: string; // e.g "SALE", "TOP SELLER", "NEW"
   highlights: IProductHighlight[]; // the three features card under the photos on the product page
   ratings: number; // average star rating 0 to 5
