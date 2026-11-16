@@ -17,6 +17,7 @@ import { promoCodes } from "./promoCodes";
 
 import { Order } from "../models/Order";
 import { Counter } from "../models/Counter";
+import { Review } from "../models/Review";
 
 // STEP 13: The seed command
 // seedDatabase( does the work and is exported, so the demo panel can reuse it.
@@ -31,6 +32,7 @@ export const seedDatabase = async () => {
     PromoCode.deleteMany({}),
     Order.deleteMany({}),
     Counter.deleteMany({}), // so the next order is #QC-1042 again
+    Review.deleteMany({}),
   ]);
 
   // 2. Save the categories, the remember each ones id by slug: "electronics" -> ObjectId(....)
