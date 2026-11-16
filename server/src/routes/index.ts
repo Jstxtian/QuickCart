@@ -7,6 +7,7 @@ import productRoutes from "./productRoutes";
 
 import accountRoutes from "./accountRoutes";
 import promoRoutes from "./promoRoutes";
+import orderRoutes from "./orderRoutes";
 
 // STEP 5: Join the routes and add a health check
 // One Router joins all the route files. app.ts mounts it at /api, so a route like e.g "/products" becmes /api/products
@@ -20,6 +21,7 @@ router.get("health", (_req, res) => {
 
   router.use("/account", accountRoutes); // /api/account...
   router.use("/promo-codes", promoRoutes); // /api/promo-codes...
+  router.use("/orders", orderRoutes); // /api/orders...
 });
 
 export default router;
