@@ -11,7 +11,7 @@ dotenv.config({ quiet: true });
 // Next: STEP 2 (Connect to MondoDB) -> server/src/config/database.ts
 
 export const env = {
-  port: Number(process.env.PORT) || 5000,
+  port: Number(process.env.PORT) || 5001,
   mongoUri:
     process.env.MONGO_URI ||
     "mongodb+srv://christiannwokedi038_db_user:DKSyzSpTyMHGxd7S@cluster0.lncn98n.mongodb.net/QuickCart",

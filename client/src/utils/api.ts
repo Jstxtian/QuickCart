@@ -8,7 +8,7 @@
 // STEP 30 (part 2): Talk to the server
 
 // "http://localhost:5000/api" while developing (from client/.env), your real API address once it's online
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:5001/api";
 
 // Where the login token is kept in the browser (STEP 31 saves it here when you log in)
 export const TOKEN_KEY = "quickcart_token";
