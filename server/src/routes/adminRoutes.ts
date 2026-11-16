@@ -32,6 +32,8 @@ import {
   updateOrderStatus,
 } from "../controllers/adminOrderController";
 
+import { getDashboard } from "../controllers/adminDashboardController";
+
 const router = Router();
 
 // One line guards EVERY route below: logged in (protect), and an admin (adminOnly). Order matters.
@@ -62,5 +64,8 @@ router.patch("/orders/:orderNumber/status", updateOrderStatus);
 // Customers (STEP 26)
 router.get("/customers", getCustomers);
 router.get("/customers/:id", getCustomer);
+
+// Dashboard (STEP 27)
+router.get("/dashboard", getDashboard);
 
 export default router;
