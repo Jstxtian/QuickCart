@@ -33,6 +33,7 @@ import {
 } from "../controllers/adminOrderController";
 
 import { getDashboard } from "../controllers/adminDashboardController";
+import { advanceOrders, resetDemo } from "../controllers/demoController";
 
 const router = Router();
 
@@ -67,5 +68,9 @@ router.get("/customers/:id", getCustomer);
 
 // Dashboard (STEP 27)
 router.get("/dashboard", getDashboard);
+
+// Demo panel (STEP 28)
+router.post("/demo/reset", resetDemo);
+router.post("/demo/advance-orders", advanceOrders);
 
 export default router;
