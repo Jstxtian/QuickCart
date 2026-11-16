@@ -19,8 +19,6 @@ export const env = {
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || "15d", // Remind logged in for 15 days
   clientUrl: process.env.CLIENT_URL || "http://localhost:5173",
 
-
-  
   // The hidden demo pamel (reset the data, move orders along) for presentations.
   // On while developing (npm run dev... runs the .ts files); off the built site (npm start runs .js from dist)
   // unless DEMO_MODE = true is set. DEMO_MODE=false always turns it off.
@@ -33,4 +31,9 @@ export const env = {
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || "",
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY || "",
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET || "",
+
+  // Brevo sends the emails (see utils/sendEmail.ts). Empty = emails are printed in the terminal instead
+  brevoApiKey: process.env.BREVO_API_KEY || "",
+  emailFrom: process.env.EMAIL_FROM || "", // must be a sender you verified in Brevo
+  emailFromName: process.env.EMAIL_FROM_NAME || "QuickCart",
 };
