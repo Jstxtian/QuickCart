@@ -36,4 +36,7 @@ export const env = {
   brevoApiKey: process.env.BREVO_API_KEY || "",
   emailFrom: process.env.EMAIL_FROM || "", // must be a sender you verified in Brevo
   emailFromName: process.env.EMAIL_FROM_NAME || "QuickCart",
+  brevoListId: process.env.BREVO_LIST_ID
+    ? Number(process.env.BREVO_LIST_ID)
+    : undefined,
 };
