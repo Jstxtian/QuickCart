@@ -65,7 +65,7 @@ const PromoBanner = () => {
           <button
             type="button"
             onClick={copyCode}
-            className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-ink hover:bg-field"
+            className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-link hover:bg-field"
           >
             Copy Code
           </button>
@@ -90,7 +90,7 @@ const PromoBanner = () => {
           alt=""
           className="h-full w-full rounded-2xl object-cover"
         />
-        <p className="absolute right-10 bottom-10 left-10 flex items-center justify-between rounded-xl bg-ink/60 px-4 py-3 text-sm backdrop-blur-sm">
+        <p className="absolute right-10 bottom-10 left-10 flex items-center justify-between rounded-xl bg-link/60 px-4 py-3 text-sm backdrop-blur-sm">
           <span>
             <span className="block text-xs text-white/70">Featured Bundle</span>
             <span className="font-semibold">Desk Sanctuary Setup</span>

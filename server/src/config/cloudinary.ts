@@ -28,7 +28,7 @@ cloudinary.config({
 });
 
 // The start of every product photo address, e.g "https://res.cloudinary.com/my-cloud/image/upload/f_auto,q_auto/"
-const PHOTO_URL_START = `https://res.cloudinary.com/${env.cloudinaryCloudName}/image/upload/f_auto,q_auto`;
+const PHOTO_URL_START = `https://res.cloudinary.com/${env.cloudinaryCloudName}/image/upload/f_auto,q_auto/`;
 
 //"quickcart/products/smart-watch-ultra" -> "https://res.cloudinary.com/my-cloud/image/upload/f_auto,q_auto/quickcart/smart-watch-ultra"
 
