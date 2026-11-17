@@ -49,7 +49,10 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-passsword" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route
+              path="/reset-password/:token"
+              element={<ResetPasswordPage />}
+            />
 
             {/* Pages that requires login: shoppers who are not logged in are sent to login first if they try t access these pages */}
             <Route element={<ProtectedRoute />}>
