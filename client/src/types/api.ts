@@ -32,6 +32,7 @@ export type Address = {
 
 // The logged-in user. The server never sends the password or the secret tokens (User.toJSON, server STEP 17).
 export type User = {
+  passwordChangedAt: any;
   _id: string;
   firstName: string;
   lastName: string;
@@ -187,4 +188,14 @@ export type OrderResponse = {
   order: Order;
   canCancel: boolean;
   cancelDeadline: string;
+};
+
+// STEP 39: My Account (server: getOrderSummary in orderController.ts)
+
+// GET /api/orders/summary -> the numbers and the 3 newest orders for the My Account overview
+export type OrderSummaryResponse = {
+  totalOrders: number;
+  inProgress: number;
+  delivered: number;
+  recentOrders: Order[];
 };
