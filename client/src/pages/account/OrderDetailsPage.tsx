@@ -1,183 +1,150 @@
-// OrderHistoryPage.tsx client/src/pages/account/OrderHistoryPage.tsx
-// My Account → Order History (design: Full Order History & Filters): search, sort, the tabs with their numbers, and
-// every order as a card. GET /api/orders?status=&search=&sort= (server STEP 22). The filters live in the address bar,
-// like the Shop page (STEP 34).
+// OrderDetailsPage.tsx client/src/pages/account/OrderDetailsPage.tsx
+// /account/orders/QC-1042 (design: Order Details & Shipment Tracking): everything about one of your orders, the live
+// tracker, and Cancel within the hour. GET /api/orders/:orderNumber (server STEP 22) answers with the order AND
+// canCancel / cancelDeadline. Full width (App.tsx puts it outside the account menu, like the design).
 
-// STEP 40 (part 3): The Order History page
+// STEP 40 (part 9): The Order Details page
 
-import { useEffect, useRef, useState } from "react";
-import { MdOutlineReceiptLong, MdSearch, MdVerified } from "react-icons/md";
-import { Link, useSearchParams } from "react-router-dom";
+import {
+  MdArrowBack,
+  MdOutlinePrint,
+  MdOutlineReplay,
+  MdOutlineSupportAgent,
+  MdSchedule,
+  MdSearchOff,
+} from "react-icons/md";
+import { Link, useParams } from "react-router-dom";
+import Breadcrumb from "../../components/common/BreadCrumb";
 import EmptyState from "../../components/common/EmptyState";
-import OrderCard from "../../components/order/OrderCard";
+import StatusPill from "../../components/common/StatusPill";
+import CancelOrderPanel from "../../components/order/CancelOrderPanel";
+import DeliveryDestination from "../../components/order/DeliveryDestination";
+import PackageContents from "../../components/order/PackageContents";
+import PaymentInfo from "../../components/order/PaymentInfo";
+import PriceBreakdown from "../../components/order/PriceBreakdown";
+import ShipmentTracker from "../../components/order/ShipmentTracker";
 import { useApi } from "../../hooks/useApi";
-import type { MyOrdersResponse } from "../../types/api";
+import { useBuyAgain } from "../../hooks/useBuyAgain";
+import type { OrderResponse } from "../../types/api";
+import { longDate, timeOnly } from "../../utils/dates";
 
-// The tabs: the server's names (server STEP 22) and what they say
-const TABS = [
-  { value: "", label: "All Orders", count: "all" },
-  { value: "in-progress", label: "In Progress", count: "in-progress" },
-  { value: "shipped", label: "Shipped", count: "shipped" },
-  { value: "delivered", label: "Delivered", count: "delivered" },
-  { value: "cancelled", label: "Cancelled", count: "cancelled" },
-] as const;
+const OrderDetailsPage = () => {
+  const { orderId = "" } = useParams();
+  const { data, error, reload } = useApi<OrderResponse>(`/orders/${orderId}`);
+  const buyAgain = useBuyAgain();
 
-const OrderHistoryPage = () => {
-  const [params, setParams] = useSearchParams();
-  const status = params.get("status") ?? "";
-  const search = params.get("search") ?? "";
-  const sort = params.get("sort") ?? "";
+  if (error) {
+    return (
+      <div className="mx-auto max-w-360 px-4 py-16 md:px-12">
+        <EmptyState
+          icon={MdSearchOff}
+          title="We couldn't find that order"
+          text={error}
+          action={
+            <Link
+              to="/account/orders"
+              className="flex h-11 items-center rounded-xl bg-primary px-6 font-semibold text-white hover:bg-primary-hover"
+            >
+              Back to My Orders
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
 
-  const update = (key: string, value: string) => {
-    setParams((current) => {
-      const next = new URLSearchParams(current);
-      if (value) next.set(key, value);
-      else next.delete(key);
-      return next;
-    });
-  };
+  if (!data) {
+    return (
+      <div
+        aria-busy="true"
+        className="mx-auto my-10 h-96 max-w-336 animate-pulse rounded-3xl bg-surface shadow-card"
+      />
+    );
+  }
 
-  // The search box waits until you stop typing (the same pattern as the Shop page, STEP 34)
-  const [searchText, setSearchText] = useState(search);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const handleSearch = (value: string) => {
-    setSearchText(value);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => update("search", value.trim()), 400);
-  };
-  useEffect(() => () => clearTimeout(timer.current), []);
-
-  const query = new URLSearchParams();
-  if (status) query.set("status", status);
-  if (search) query.set("search", search);
-  if (sort) query.set("sort", sort);
-  const { data, error, loading, reload } = useApi<MyOrdersResponse>(
-    `/orders?${query}`,
-  );
+  const { order, canCancel, cancelDeadline } = data;
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+    <div className="mx-auto max-w-360 px-4 pt-6 pb-20 md:px-12">
+      <Breadcrumb
+        items={[
+          { label: "Home", to: "/" },
+          { label: "My Account", to: "/account" },
+          { label: "Order History", to: "/account/orders" },
+          { label: `#${order.orderNumber}` },
+        ]}
+      />
+
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4 rounded-3xl bg-surface p-6 shadow-card">
         <div>
+          <p className="mb-2 flex items-center gap-3 text-sm">
+            <Link
+              to="/account/orders"
+              className="flex items-center gap-1 font-medium text-primary-hover hover:underline print:hidden"
+            >
+              <MdArrowBack size={16} aria-hidden="true" /> Back to My Orders
+            </Link>
+            <StatusPill status={order.status} />
+          </p>
           <h1 className="text-4xl font-bold tracking-tight text-ink">
-            Order History
+            Order #{order.orderNumber}
           </h1>
-          <p className="mt-1 text-ink-soft">
-            Track past packages, print invoices, and reorder your favourite
-            everyday essentials.
+          <p className="mt-1 flex items-center gap-1.5 text-ink-soft">
+            <MdSchedule size={16} aria-hidden="true" /> Placed on{" "}
+            {longDate(order.createdAt)} at {timeOnly(order.createdAt)}
           </p>
         </div>
-        <span className="flex items-center gap-1.5 rounded-full bg-mint/40 px-3 py-1 text-sm font-medium text-forest">
-          <MdVerified size={16} aria-hidden="true" /> Verified Local Delivery
-        </span>
-      </div>
-
-      <div className="flex flex-col gap-4 rounded-3xl bg-surface p-5 shadow-card">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="relative flex-1">
-            <label htmlFor="order-search" className="sr-only">
-              Search orders
-            </label>
-            <MdSearch
-              size={20}
-              aria-hidden="true"
-              className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-muted"
-            />
-            <input
-              id="order-search"
-              type="search"
-              value={searchText}
-              onChange={(event) => handleSearch(event.target.value)}
-              placeholder="Search by order number (e.g. #QC-1042) or product name..."
-              className="h-12 w-full rounded-full bg-field pr-4 pl-11 text-[15px] outline-none focus:ring-2 focus:ring-primary/30"
-            />
-          </div>
-          <label className="sr-only" htmlFor="order-sort">
-            Sort
-          </label>
-          <select
-            id="order-sort"
-            value={sort}
-            onChange={(event) => update("sort", event.target.value)}
-            className="h-12 cursor-pointer rounded-full bg-field px-5 font-medium text-ink outline-none"
-          >
-            <option value="">Sort: Most Recent</option>
-            <option value="oldest">Sort: Oldest First</option>
-          </select>
-        </div>
-
-        <div
-          role="tablist"
-          aria-label="Filter orders"
-          className="flex gap-2 overflow-x-auto pb-1"
-        >
-          {TABS.map((tab) => (
-            <button
-              key={tab.label}
-              type="button"
-              role="tab"
-              aria-selected={status === tab.value}
-              onClick={() => update("status", tab.value)}
-              className={`shrink-0 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-                status === tab.value
-                  ? "bg-primary text-white"
-                  : "border border-line bg-surface text-ink-soft hover:text-primary"
-              }`}
-            >
-              {tab.label} {data && `(${data.counts[tab.count]})`}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {error ? (
-        <div
-          role="alert"
-          className="flex items-center justify-between rounded-2xl bg-danger-light p-4 text-sm text-danger"
-        >
-          {error}
+        <div className="flex flex-wrap gap-3 print:hidden">
+          {/* The browser's own print window, which can also "Save as PDF". The Navbar and Footer hide themselves (print:hidden). */}
           <button
             type="button"
-            onClick={reload}
-            className="font-semibold underline"
+            onClick={() => window.print()}
+            className="flex h-11 items-center gap-2 rounded-xl bg-field px-4 font-semibold text-ink hover:bg-primary-light"
           >
-            Try again
+            <MdOutlinePrint size={18} aria-hidden="true" /> Print Invoice
           </button>
+          <a
+            href={`mailto:help@quickcart.ng?subject=${encodeURIComponent(`Help with order #${order.orderNumber}`)}`}
+            className="flex h-11 items-center gap-2 rounded-xl bg-primary-light px-4 font-semibold text-ink hover:bg-info-light"
+          >
+            <MdOutlineSupportAgent size={18} aria-hidden="true" /> Need Help?
+          </a>
         </div>
-      ) : !data ? (
-        <div
-          aria-busy="true"
-          className="h-64 animate-pulse rounded-3xl bg-surface shadow-card"
-        />
-      ) : data.orders.length === 0 ? (
-        <EmptyState
-          icon={MdOutlineReceiptLong}
-          title={data.counts.all === 0 ? "No orders yet" : "No orders match"}
-          text={
-            data.counts.all === 0
-              ? "When you place an order, it will appear here so you can track it."
-              : "Try another tab or search."
-          }
-          action={
-            data.counts.all === 0 && (
-              <Link
-                to="/shop"
-                className="flex h-11 items-center rounded-xl bg-primary px-6 font-semibold text-white hover:bg-primary-hover"
+      </div>
+
+      <div className="grid items-start gap-6 lg:grid-cols-[1fr_440px]">
+        <div className="flex flex-col gap-6">
+          <ShipmentTracker order={order} />
+          <PackageContents order={order} />
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <DeliveryDestination order={order} />
+          <PaymentInfo order={order} />
+          <PriceBreakdown order={order} />
+
+          <div className="flex flex-col gap-4 print:hidden">
+            {order.status !== "processing" && (
+              <button
+                type="button"
+                onClick={() => buyAgain(order.items)}
+                className="flex h-13 items-center justify-center gap-2 rounded-xl bg-success text-lg font-semibold text-white hover:bg-forest"
               >
-                Start Shopping
-              </Link>
-            )
-          }
-        />
-      ) : (
-        <ul className={`flex flex-col gap-5 ${loading ? "opacity-60" : ""}`}>
-          {data.orders.map((order) => (
-            <OrderCard key={order._id} order={order} />
-          ))}
-        </ul>
-      )}
+                <MdOutlineReplay size={20} aria-hidden="true" /> Buy Again
+              </button>
+            )}
+            {canCancel && (
+              <CancelOrderPanel
+                orderNumber={order.orderNumber}
+                deadline={cancelDeadline}
+                onCancelled={reload}
+              />
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default OrderHistoryPage;
+export default OrderDetailsPage;
